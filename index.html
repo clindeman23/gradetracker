@@ -3190,8 +3190,9 @@ function calcStudentGrade(cls, quarter, studentId) {
       const e = _earn(a);
       if (e !== null) { earned += e; total += a.points || 0; }
     }
-    const pct = total > 0 ? Math.round((earned/total)*1000)/10 : null;
-    return {pct, letter: getLetterGrade(pct), earned, total};
+    const rawPct = total > 0 ? (earned/total)*100 : null;
+    const pct = rawPct !== null ? Math.round(rawPct*10)/10 : null;
+    return {pct, letter: getLetterGrade(rawPct), earned, total};
   } else {
     const cats = cls.categories || [];
     let weightedSum = 0, totalWeight = 0;
@@ -3207,8 +3208,9 @@ function calcStudentGrade(cls, quarter, studentId) {
       catResults[cat.id] = {pct: catPct !== null ? Math.round(catPct*1000)/10 : null, earned, total};
       if (catPct !== null) { weightedSum += catPct*(cat.weight/100); totalWeight += cat.weight/100; }
     }
-    const pct = totalWeight > 0 ? Math.round((weightedSum/totalWeight)*1000)/10 : null;
-    return {pct, letter: getLetterGrade(pct), catResults};
+    const rawPct = totalWeight > 0 ? (weightedSum/totalWeight)*100 : null;
+    const pct = rawPct !== null ? Math.round(rawPct*10)/10 : null;
+    return {pct, letter: getLetterGrade(rawPct), catResults};
   }
 }
 
@@ -3437,7 +3439,8 @@ function gbRenderTable(cls, data) {
 
       const val = grades[a.id];
       const numVal = (val !== undefined && val !== '' && val !== null) ? parseFloat(val) : null;
-      const cellPct = (numVal !== null && pts > 0) ? Math.round(numVal/pts*1000)/10 : null;
+      const rawCellPct = (numVal !== null && pts > 0) ? (numVal/pts)*100 : null;
+      const cellPct = rawCellPct !== null ? Math.round(rawCellPct*10)/10 : null;
 
       rows += `<tr style="background:${rowBg}" onmouseover="this.style.filter='brightness(0.97)'" onmouseout="this.style.filter=''">
         <td style="${tdBase};font-weight:600;max-width:220px">
@@ -3466,7 +3469,7 @@ function gbRenderTable(cls, data) {
         <td style="${tdBase};text-align:center;color:var(--c-light);font-weight:600">${pts}</td>
         <td style="${tdBase};text-align:center">
           ${cellPct !== null
-            ? `<span style="font-weight:700;color:${gradeColor(getLetterGrade(cellPct))}">${cellPct}%</span>`
+            ? `<span style="font-weight:700;color:${gradeColor(getLetterGrade(rawCellPct))}">${cellPct}%</span>`
             : '<span style="color:var(--c-text-muted)">—</span>'}
         </td>
         ${gbEditMode ? `<td style="${tdBase};text-align:center">
