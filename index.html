@@ -3191,7 +3191,7 @@ function calcStudentGrade(cls, quarter, studentId) {
       if (e !== null) { earned += e; total += a.points || 0; }
     }
     const rawPct = total > 0 ? (earned/total)*100 : null;
-    const pct = rawPct !== null ? Math.round(rawPct*10)/10 : null;
+    const pct = rawPct !== null ? Math.round(rawPct*100)/100 : null;
     return {pct, letter: getLetterGrade(rawPct), earned, total};
   } else {
     const cats = cls.categories || [];
@@ -3205,11 +3205,11 @@ function calcStudentGrade(cls, quarter, studentId) {
         if (e !== null) { earned += e; total += a.points || 0; }
       }
       const catPct = total > 0 ? earned/total : null;
-      catResults[cat.id] = {pct: catPct !== null ? Math.round(catPct*1000)/10 : null, earned, total};
+      catResults[cat.id] = {pct: catPct !== null ? Math.round(catPct*10000)/100 : null, earned, total};
       if (catPct !== null) { weightedSum += catPct*(cat.weight/100); totalWeight += cat.weight/100; }
     }
     const rawPct = totalWeight > 0 ? (weightedSum/totalWeight)*100 : null;
-    const pct = rawPct !== null ? Math.round(rawPct*10)/10 : null;
+    const pct = rawPct !== null ? Math.round(rawPct*100)/100 : null;
     return {pct, letter: getLetterGrade(rawPct), catResults};
   }
 }
@@ -3356,7 +3356,7 @@ function gbRenderTable(cls, data) {
     html += `<div style="display:flex;align-items:center;gap:20px;padding:16px 24px;border-radius:16px;border:2px solid var(--c-pale);background:var(--c-surface);margin-bottom:16px">
       <div style="text-align:center;min-width:64px">
         <div style="font-size:36px;font-weight:900;line-height:1;color:${clr}">${result.letter}</div>
-        <div style="font-size:12px;font-weight:700;color:var(--c-text-muted);margin-top:2px">${result.pct}%</div>
+        <div style="font-size:12px;font-weight:700;color:var(--c-text-muted);margin-top:2px">${result.pct.toFixed(2)}%</div>
       </div>
       <div style="flex:1">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-light);margin-bottom:6px">${gbQuarter} Grade — ${escHtml(cls.name)}</div>
@@ -3368,7 +3368,7 @@ function gbRenderTable(cls, data) {
             const cr = result.catResults[cat.id];
             if (!cr || cr.pct === null) return '';
             const cc = cat.color || 'var(--c-brown)';
-            return `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:${_autoLighten(cc,0.85)};color:${cc}">${escHtml(cat.name)}: ${cr.pct}%</span>`;
+            return `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:${_autoLighten(cc,0.85)};color:${cc}">${escHtml(cat.name)}: ${cr.pct.toFixed(2)}%</span>`;
           }).join('')}
         </div>` : ''}
       </div>
@@ -3440,7 +3440,7 @@ function gbRenderTable(cls, data) {
       const val = grades[a.id];
       const numVal = (val !== undefined && val !== '' && val !== null) ? parseFloat(val) : null;
       const rawCellPct = (numVal !== null && pts > 0) ? (numVal/pts)*100 : null;
-      const cellPct = rawCellPct !== null ? Math.round(rawCellPct*10)/10 : null;
+      const cellPct = rawCellPct !== null ? Math.round(rawCellPct*100)/100 : null;
 
       rows += `<tr style="background:${rowBg}" onmouseover="this.style.filter='brightness(0.97)'" onmouseout="this.style.filter=''">
         <td style="${tdBase};font-weight:600;max-width:220px">
@@ -3469,7 +3469,7 @@ function gbRenderTable(cls, data) {
         <td style="${tdBase};text-align:center;color:var(--c-light);font-weight:600">${pts}</td>
         <td style="${tdBase};text-align:center">
           ${cellPct !== null
-            ? `<span style="font-weight:700;color:${gradeColor(getLetterGrade(rawCellPct))}">${cellPct}%</span>`
+            ? `<span style="font-weight:700;color:${gradeColor(getLetterGrade(rawCellPct))}">${cellPct.toFixed(2)}%</span>`
             : '<span style="color:var(--c-text-muted)">—</span>'}
         </td>
         ${gbEditMode ? `<td style="${tdBase};text-align:center">
@@ -3501,7 +3501,7 @@ function gbRenderTable(cls, data) {
           <td colspan="${isWeighted?2:1}" style="padding:5px 12px;font-size:11px;font-weight:800;color:${cc}">↳ ${escHtml(cat.name)} Total</td>
           <td style="padding:5px 12px;text-align:center;font-size:11px;font-weight:700;color:${cc}">${cr.earned}</td>
           <td style="padding:5px 12px;text-align:center;font-size:11px;color:var(--c-light)">${cr.total}</td>
-          <td style="padding:5px 12px;text-align:center;font-size:12px;font-weight:800;color:${cc}">${cr.pct}%</td>
+          <td style="padding:5px 12px;text-align:center;font-size:12px;font-weight:800;color:${cc}">${cr.pct.toFixed(2)}%</td>
           ${gbEditMode ? '<td></td>' : ''}
         </tr>`;
       }
@@ -3524,7 +3524,7 @@ function gbRenderTable(cls, data) {
     html += `<tr style="background:var(--c-pale);border-top:2px solid var(--c-medium)">
       <td colspan="${isWeighted?4:3}" style="padding:8px 12px;font-size:12px;font-weight:800;color:var(--c-brown)">Overall ${gbQuarter} Grade</td>
       <td style="padding:8px 12px;text-align:center">
-        <span style="font-weight:900;font-size:14px;color:${clr}">${result.letter} — ${result.pct}%</span>
+        <span style="font-weight:900;font-size:14px;color:${clr}">${result.letter} — ${result.pct.toFixed(2)}%</span>
       </td>
       ${gbEditMode ? '<td></td>' : ''}
     </tr>`;
